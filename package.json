@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@observablehq/framework": "^1.8.0",
+    "@sgratzl/lineup-advanced-example": "https://api.observablehq.com/@sgratzl/lineup-advanced-example@76.tgz?v=3",
     "d3-dsv": "^3.0.1",
     "d3-time-format": "^4.1.0"
   },
