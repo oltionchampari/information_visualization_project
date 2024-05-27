@@ -9,13 +9,11 @@ toc: false
   flex-direction: column;
   align-items: center;
   font-family: var(--sans-serif);
-  margin: 4rem 0 8rem;
   text-wrap: balance;
   text-align: center;
 }
 
 .hero h1 {
-  margin: 2rem 0;
   max-width: none;
   font-size: 14vw;
   font-weight: 900;
@@ -29,7 +27,7 @@ toc: false
 .hero h2 {
   margin: 0;
   max-width: 34em;
-  font-size: 20px;
+  font-size: 15px;
   font-style: initial;
   font-weight: 500;
   line-height: 1.5;
