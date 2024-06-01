@@ -2,6 +2,6 @@
 /dist/
 node_modules/
 yarn-error.log
-/src/data/musicoset_metadata/
-/src/data/musicoset_popularity/
-/src/data/musicoset_songfeatures/
+/src/data/music_metadata/
+/src/data/music_popularity/
+/src/data/music_songfeatures/

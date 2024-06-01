@@ -2,61 +2,70 @@
 theme: dashboard
 toc: false
 ---
+<link href="https://unpkg.com/lineupjs/build/LineUpJS.css" rel="stylesheet" />
 
 <style>
 
-.hero {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  font-family: var(--sans-serif);
-  text-wrap: balance;
-  text-align: center;
+::-webkit-scrollbar {
+  width: 10px;
+  height:10px
 }
 
-.hero h1 {
-  max-width: none;
-  font-size: 14vw;
-  font-weight: 900;
-  line-height: 1;
-  background: linear-gradient(30deg, var(--theme-foreground-focus), currentColor);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #b0b0b0; 
+  border-radius: 5px;
 }
 
-
-@media (min-width: 640px) {
-  .hero h1 {
-    font-size: 90px;
-  }
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #a0a0a0; 
 }
+
+#observablehq-center {
+  height: 100vh;
+  background: white;
+    margin: 0;
+}
+
+#observablehq-main {
+  background: white;
+  margin: 0;
+}
+
+#content {
+  padding:1rem
+}
+
+footer {
+  display: none!important;
+}
+
+#content.lu{
+  font-size: 14px
+}
+
 
 </style>
 
-<div class="hero">
-  <h1>Music dashboard </h1>
-</div>
-<div class="content">
-  <h1>Music dashboard </h1>
-</div>
 
 ```js
 import {Runtime, Inspector} from "@observablehq/runtime";
-import define from "@sgratzl/lineup-advanced-example";
-
-```
-
-```js
-const runtime = new Runtime();
-const main = runtime.module(define, Inspector.into(document.body.querySelector('.content')));
+import * as  LineUpJs from "lineupjs"
 
 
 ```
 
+<div id="content"></div>
 
 ```js
+const albums = FileAttachment("data/music_metadata/albums.csv").tsv({delimiter: " "});
+console.log(albums)
 
-const aapl = FileAttachment("aapl.csv").csv({ typed: true });
+```
+
+```js
+const lineup = LineUpJs.asLineUp(document.body.querySelector('#content'), albums)
+lineup.node.style.height='400px'
 
 ```
