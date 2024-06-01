@@ -1,0 +1,10 @@
+{
+  "compilerOptions": {
+    "outDir": "./src/views/",
+    "module": "ES2022",
+    "target": "ES2021",
+    "moduleResolution": "bundler",
+    "skipLibCheck": true,
+  },
+  "include": ["./src"],
+}

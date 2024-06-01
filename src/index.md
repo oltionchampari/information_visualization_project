@@ -47,6 +47,9 @@ footer {
   .lu-side-panel {
     display:none
   }
+  .le-th {
+    border-bottom: 1px solid #e8e8e8
+  }
 }
 
 .divider {
@@ -61,6 +64,7 @@ footer {
 ```js
 import {Runtime, Inspector} from "@observablehq/runtime";
 import * as  LineUpJs from "lineupjs"
+import {buildLineup} from "./table.js"
 
 
 ```
@@ -69,7 +73,7 @@ import * as  LineUpJs from "lineupjs"
 <div class="divider"></div>
 
 ```js
-const albums = FileAttachment("data/music_metadata/albums.csv").tsv({delimiter: " "});
+const albums = FileAttachment("data/music_metadata/albums.csv").tsv({delimiter: " ", typed:true});
 const artists = FileAttachment("data/music_metadata/artists.csv").tsv({delimiter: " "});
 const releases = FileAttachment("data/music_metadata/releases.csv").tsv({delimiter: " "});
 const songs = FileAttachment("data/music_metadata/songs.csv").tsv({delimiter: " "});
@@ -78,7 +82,7 @@ const tracks = FileAttachment("data/music_metadata/tracks.csv").tsv({delimiter: 
 ```
 
 ```js
-const lineup = LineUpJs.asLineUp(document.body.querySelector('#content'), albums)
-lineup.node.style.height='400px'
+const lineup = buildLineup(albums)
+  lineup.node.style.height = "400px";
 
 ```
