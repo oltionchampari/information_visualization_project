@@ -42,9 +42,18 @@ footer {
 }
 
 #content.lu{
-  font-size: 14px
+  font-size: 14px;
+
+  .lu-side-panel {
+    display:none
+  }
 }
 
+.divider {
+  height:4px;
+  width: 100%;
+  background: #e8e8e8;
+}
 
 </style>
 
@@ -57,10 +66,14 @@ import * as  LineUpJs from "lineupjs"
 ```
 
 <div id="content"></div>
+<div class="divider"></div>
 
 ```js
 const albums = FileAttachment("data/music_metadata/albums.csv").tsv({delimiter: " "});
-console.log(albums)
+const artists = FileAttachment("data/music_metadata/artists.csv").tsv({delimiter: " "});
+const releases = FileAttachment("data/music_metadata/releases.csv").tsv({delimiter: " "});
+const songs = FileAttachment("data/music_metadata/songs.csv").tsv({delimiter: " "});
+const tracks = FileAttachment("data/music_metadata/tracks.csv").tsv({delimiter: " "});
 
 ```
 
