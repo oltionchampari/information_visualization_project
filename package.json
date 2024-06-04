@@ -4,19 +4,37 @@
   "scripts": {
     "clean": "rimraf src/.observablehq/cache",
     "build": "rimraf dist && observable build",
-    "dev": "tsc && observable preview",
+    "dev": "tsc-watch --onSuccess 'observable preview'",
     "deploy": "observable deploy",
     "observable": "observable"
   },
   "dependencies": {
-    "typescript": "5.4.5",
+    "@mantine/core": "^7.10.1",
+    "@mantine/hooks": "^7.10.1",
     "@observablehq/framework": "^1.8.0",
+    "@types/d3": "^7.4.3",
+    "bootstrap": "^5.3.3",
+    "d3": "^7.9.0",
     "d3-dsv": "^3.0.1",
+    "d3-time-format": "^4.1.0",
+    "jsesc": "^3.0.2",
     "lineupjs": "^4.10.0",
-    "d3-time-format": "^4.1.0"
+    "plotly.js-dist-min": "^2.33.0",
+    "popper.js": "^1.15.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "simple-statistics": "^7.8.3",
+    "typescript": "5.4.5"
   },
   "devDependencies": {
-    "rimraf": "^5.0.5"
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.0.11",
+    "rimraf": "^5.0.5",
+    "tsc-watch": "^6.2.0"
+  },
+  "resolutions": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
   },
   "engines": {
     "node": ">=18"
