@@ -2,40 +2,26 @@ import LineUp, {
   buildRanking,
   buildStringColumn,
   buildNumberColumn,
+  buildCategoricalColumn,
   builder,
   buildColumn,
 } from "lineupjs";
 import * as d3 from "d3";
 
-
 export function buildLineup(data) {
   const dataBuilder = builder(data);
-  dataBuilder.column(buildStringColumn("name"));
-  dataBuilder.column(
-    buildStringColumn("image_url")
-      .pattern("${value}")
-      .label("Cover")
-      .renderer("image")
-      .width(70)
-  );
-  dataBuilder.column(
-    buildStringColumn("artist")
-      .pattern("${value}")
-      .label("Artist")
-      .renderer("image")
-      .width(70)
-  );
-  const colorScale = d3
-    .scaleLinear()
-    .domain([0, 1]) // Input range
-    .range(["#E90aa", "#1E90FF"]);
-  dataBuilder.column(
-    buildNumberColumn("popularity")
-      .width(150)
-      .renderer("brightness")
-      .colorMapping((numValue) => colorScale(numValue))
-  );
-
+  dataBuilder.column(buildStringColumn("song_name").label("Song name"));
+  dataBuilder.column(buildStringColumn("name").label("Artist name"));
+  dataBuilder.column(buildCategoricalColumn("main_genre").label("Genre"));
+  dataBuilder.column(buildNumberColumn("acousticness").width(120));
+  dataBuilder.column(buildNumberColumn("danceability").width(120));
+  dataBuilder.column(buildNumberColumn("energy").width(120));
+  dataBuilder.column(buildNumberColumn("instrumentalness").width(120));
+  dataBuilder.column(buildNumberColumn("loudness"));
+  dataBuilder.column(buildNumberColumn("speechiness").width(120));
+  dataBuilder.column(buildNumberColumn("valence").width(120));
+  dataBuilder.column(buildNumberColumn("tempo").width(120));
+  dataBuilder.column(buildNumberColumn("popularity").width(120));
   const ranking = buildRanking()
     .supportTypes()
     .allColumns()

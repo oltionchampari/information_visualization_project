@@ -5,6 +5,8 @@ toc: false
 <link href="https://unpkg.com/lineupjs/build/LineUpJS.css" rel="stylesheet" />
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
 
+
+
 <style>
 
 ::-webkit-scrollbar {
@@ -43,19 +45,22 @@ toc: false
 }
 
 #app-root {
-  height: 99vh;
+  height: 100vh;
+  background: #F5F5F7
 }
 
 .table-view.lu{
+  border-radius: 5px;
+  background: white;
   font-size: 14px;
-
   .le-th {
     border-bottom: 1px solid #e8e8e8
   }
 }
-.grid-container {
-  display: grid;
-  grid-template-columns: 2fr 12fr;
+
+.detail-view {
+    border-radius: 5px;
+    background: white;
 }
 
 .grid-item {
@@ -70,14 +75,31 @@ toc: false
   background: #e8e8e8;
 }
 
+.gutter.gutter-horizontal {
+    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAeCAYAAADkftS9AAAAIklEQVQoU2M4c+bMfxAGAgYYmwGrIIiDjrELjpo5aiZeMwF+yNnOs5KSvgAAAABJRU5ErkJggg==');
+      background-position: center;
+  background-repeat: no-repeat;
+     cursor: col-resize;
+}
+
+  .gutter.gutter-vertical {
+    cursor: row-resize;
+    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAFAQMAAABo7865AAAABlBMVEVHcEzMzMzyAv2sAAAAAXRSTlMAQObYZgAAABBJREFUeF5jOAMEEAIEEFwAn3kMwcB6I2AAAAAASUVORK5CYII=');
+
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+
+
 #popover {
   z-index:100;
   position: absolute;
   border-radius:5px;
   padding: 10px;
   background: white;
-  height: 200px;
-  width: 300px;
+  height: 350px;
+  width: 500px;
   opacity: 0;
   transition: opacity 0.3s;
   box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
@@ -93,28 +115,46 @@ import {ReactDom} from 'react-dom'
 import {buildLineup} from "./table.js"
 import {AppShell} from './views/AppShell.js'
 import {Heatmap} from './views/Heatmap.js'
+import {ScatterMatrix} from './views/ScatterPlot.js'
 import jsesc from 'jsesc'
 
 ```
 
 
 ```js
-const albums = FileAttachment("data/music_metadata/albums.csv").tsv({delimiter: " ", typed:true});
-const artists = FileAttachment("data/music_metadata/artists.csv").tsv({delimiter: " "});
-const releases = FileAttachment("data/music_metadata/releases.csv").tsv({delimiter: " "});
-const songs = FileAttachment("data/music_metadata/songs.csv").tsv({delimiter: " "});
-const tracks = FileAttachment("data/music_metadata/tracks.csv").tsv({delimiter: " "});
+// metadata
+const albums = FileAttachment("data/music_metadata/albums.csv").tsv({delimiter: " ", typed: true});
+const artists = FileAttachment("data/music_metadata/artists.csv").tsv({delimiter: " ",typed: true});
+const releases = FileAttachment("data/music_metadata/releases.csv").tsv({delimiter: " ",typed: true});
+const songs = FileAttachment("data/music_metadata/songs.csv").tsv({delimiter: " ", typed: true});
+const tracks = FileAttachment("data/music_metadata/tracks.csv").tsv({delimiter: " ", typed: true});
+
+// features
+const acousticFeatures = FileAttachment("data/music_songfeatures/acoustic_features.csv").tsv({delimiter: " ", typed: true});
+const lyrics = FileAttachment("data/music_songfeatures/lyrics.csv").tsv({delimiter: " ", typed: true});
 ```
 ```js
-const artistsMap = artists.reduce((acc,cur)=>{
+
+const artistsDataMap = artists.reduce((acc,cur)=>{
   acc[cur.artist_id] = cur
   return acc
 },{})
-const artistData = albums.map((row)=>{
+
+const featuresDataMap = acousticFeatures.reduce((acc,cur)=>{
+  acc[cur.song_id] = cur
+  return acc
+},{})
+const lyricsDataMap = lyrics.reduce((acc,cur)=>{
+  acc[cur.song_id] = cur
+  return acc
+},{})
+
+
+const fullData = songs.map((row)=>{
 let str = row.artists
 let match = str.match(/'([^']+)'/);
 let id = match ? match[1] : null;
-return {...row, artist: artistsMap[id]?.image_url }
+return {...row, ...artistsDataMap[id],...featuresDataMap[row.song_id]}
 })
 ```
 
@@ -125,19 +165,21 @@ AppShell()
 
 
 ```js
-
-const props = Mutable([{name:"No selection"}])
-const setSelection = (sel)=>props.value=sel
+const props = Mutable([{name:"No selection"}]);
+const setSelection = (sel)=>{
+  props.value=sel
+  };
 ```
 
 
+
 ```js
-await visibility()
-const lineUp = buildLineup(artistData)
+await visibility();
+const lineUp = buildLineup(fullData)
 lineUp.node.style.height = "400px";
 lineUp.on(LineUp.EVENT_SELECTION_CHANGED, function() {
   const select= lineUp.data.view(lineUp.data.getSelection());
- setSelection(select)
+ setSelection(select);
 });
 
 ```
@@ -145,7 +187,13 @@ lineUp.on(LineUp.EVENT_SELECTION_CHANGED, function() {
 
 ```js
 await visibility()
-Heatmap()
+Heatmap(acousticFeatures)
+
+```
+
+```js
+await visibility()
+ScatterMatrix(acousticFeatures)
 
 ```
 
