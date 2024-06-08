@@ -131,7 +131,7 @@ const tracks = FileAttachment("data/music_metadata/tracks.csv").tsv({delimiter: 
 
 // features
 const acousticFeatures = FileAttachment("data/music_songfeatures/acoustic_features.csv").tsv({delimiter: " ", typed: true});
-const lyrics = FileAttachment("data/music_songfeatures/lyrics.csv").tsv({delimiter: " ", typed: true});
+// const lyrics = FileAttachment("data/music_songfeatures/lyrics.csv").tsv({delimiter: " ", typed: true});
 ```
 ```js
 
