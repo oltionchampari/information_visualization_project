@@ -107,7 +107,15 @@ function renderLegend(height, width, padding, color, svg) {
         .style("font-size", "14px")
         .text(d3.max(color.domain()));
 }
-export function Heatmap(songFeatureData) {
+export function Heatmap(songFeatureData, filter, onColumnSelectionChanged) {
+    // initialize filtermap from filter array
+    const filterMap = new Map();
+    filter.forEach((f) => {
+        filterMap.set(f, true);
+    });
+    const filteredData = filter.length
+        ? songFeatureData.filter((d) => !filterMap.get(d.song_id))
+        : songFeatureData;
     const corr = {};
     const ignoreColumns = [
         "song_id",
@@ -116,7 +124,7 @@ export function Heatmap(songFeatureData) {
         "key",
         "time_signature",
     ];
-    const arrData = songFeatureData.map((d) => {
+    filteredData.map((d) => {
         const keys = Object.keys(d).filter((key) => !ignoreColumns.includes(key));
         keys.forEach((key) => {
             if (!corr[key]) {
@@ -155,6 +163,10 @@ export function Heatmap(songFeatureData) {
         const heightLeft = height - padding.top - padding.bottom;
         const resizeMetric = Math.min(widthLeft, heightLeft);
         const cellSize = resizeMetric / numColumns;
+        if (padding.left + numColumns * cellSize + padding.right < width) {
+            padding.left = (width - numColumns * cellSize) / 2;
+            padding.right = padding.left;
+        }
         const svg = d3
             .select(".detail-view")
             .append("div")
@@ -215,6 +227,8 @@ export function Heatmap(songFeatureData) {
                     .filter((dd) => dd === d)
                     .raise();
             });
+            console.log("Selected cells", Array.from(selectedCells.values()));
+            onColumnSelectionChanged(Array.from(selectedCells.values()));
         });
         const text = svg
             .selectAll("text")
@@ -258,7 +272,7 @@ export function Heatmap(songFeatureData) {
             .enter()
             .append("text")
             .text((d) => d)
-            .attr("x", 0)
+            .attr("x", padding.left - 60)
             .attr("y", (d, i) => i * cellSize + padding.top + cellSize / 2 + 5)
             .style("font-size", "12px")
             .style("text-anchor", "start")

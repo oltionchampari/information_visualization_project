@@ -1,28 +1,53 @@
 import Plotly from "plotly.js-dist-min";
+import * as ss from "simple-statistics";
 function capitalizeFirstLetter(string) {
     return string.charAt(0).toUpperCase() + string.slice(1);
 }
-export function Scatter(songFeatureData) {
+export function ScatterPlot(songFeatureData, filter) {
     const xColumn = "danceability";
     const yColumn = "energy";
-    const xData = songFeatureData.map((row) => row[xColumn]);
-    const yData = songFeatureData.map((row) => row[yColumn]);
+    const filterMap = new Map();
+    filter.forEach((f) => {
+        filterMap.set(f, true);
+    });
+    const filteredData = filter.length
+        ? songFeatureData.filter((d) => !filterMap.get(d.song_id))
+        : songFeatureData;
+    const xData = filteredData.map((row) => row[xColumn]);
+    const yData = filteredData.map((row) => row[yColumn]);
+    // Calculate the linear regression
+    var regression = ss.linearRegression(xData.map((val, idx) => [val, yData[idx]]));
+    // Create the regression line function
+    var regressionLine = ss.linearRegressionLine(regression);
+    // Generate y values for the regression line
+    var regressionY = xData.map(regressionLine);
     var trace1 = {
         x: xData,
         y: yData,
+        showlegend: false,
         mode: "markers",
         type: "scattergl",
-        marker: { size: 8, color: "rgb(176, 176, 176)", opacity: 0.3 },
+        marker: { size: 10, color: "rgb(176, 176, 176)", opacity: 0.3 },
     };
-    var data = [trace1];
+    // Regression line trace
+    var trace2 = {
+        x: xData,
+        y: regressionY,
+        showlegend: false,
+        mode: "lines",
+        line: { color: "rgb(31, 119, 180)", width: 3, opacity: 0.5 },
+        type: "scattergl",
+    };
+    var data = [trace1, trace2];
     var layout = {
+        dragmode: "lasso",
         xaxis: {
             title: capitalizeFirstLetter(xColumn),
             color: "#212529",
             titlefont: {
                 size: 14,
                 color: "#212529",
-            }
+            },
         },
         yaxis: {
             title: capitalizeFirstLetter(yColumn),
@@ -30,33 +55,117 @@ export function Scatter(songFeatureData) {
             titlefont: {
                 size: 14,
                 color: "#212529",
-            }
+            },
         },
         margin: { t: 0 },
     };
-    Plotly.newPlot("detail-view-2", data, layout);
+    const config = {
+        responsive: true,
+        displayModeBar: true,
+        displaylogo: false,
+        modeBarButtonsToRemove: [
+            "select2d",
+            "zoomIn2d",
+            "zoomOut2d",
+            "autoScale2d",
+            "resetScale2d",
+            "hoverClosestCartesian",
+            "hoverCompareCartesian",
+            "toggleSpikelines",
+            "toImage",
+            "zoomInMapbox",
+            "zoom3d",
+            "zoom2d",
+        ],
+        modeBarButtonsToAdd: ["lasso2d", "select2d", "pan2d"],
+    };
+    Plotly.newPlot("detail-view-2", data, layout, config);
 }
-export function ScatterMatrix(songFeatureData) {
-    const corr = {};
-    const ignoreColumns = [
-        "song_id",
-        "duration_ms",
-        "mode",
-        "key",
-        "time_signature",
-    ];
-    const corrValues = Object.keys(corr).map((key) => {
-        return Object.keys(corr).map((key2) => {
-            if (key === key2) {
-                return { x: key, y: key2, value: 1 };
-            }
-            return {
-                x: key,
-                y: key2,
-                value: Math.abs(corr[key][key2]),
-            };
-        });
+export function Scatter(songFeatureData, filter, columnSelection) {
+    if (columnSelection.length === 0) {
+        document.getElementById("detail-view-2").innerHTML = `<div class="h5 text-muted h-100 d-flex justify-content-center align-items-center"><span>Please select a cell in the heatmap to view the scatter plot.</span></div>`;
+        return;
+    }
+    document.getElementById("detail-view-2").innerHTML = ``;
+    const xColumn = columnSelection[0].x;
+    const yColumn = columnSelection[0].y;
+    const filterMap = new Map();
+    filter.forEach((f) => {
+        filterMap.set(f, true);
     });
-    const numColumns = Object.keys(corr).length;
-    Scatter(songFeatureData);
+    const filteredData = filter.length
+        ? songFeatureData.filter((d) => !filterMap.get(d.song_id))
+        : songFeatureData;
+    const xData = filteredData.map((row) => row[xColumn]);
+    const yData = filteredData.map((row) => row[yColumn]);
+    // Calculate the linear regression
+    var regression = ss.linearRegression(xData.map((val, idx) => [val, yData[idx]]));
+    // Create the regression line function
+    var regressionLine = ss.linearRegressionLine(regression);
+    // Generate y values for the regression line
+    var regressionY = xData.map(regressionLine);
+    var trace1 = {
+        x: xData,
+        y: yData,
+        showlegend: false,
+        mode: "markers",
+        type: "scattergl",
+        marker: { size: 10, color: "rgb(176, 176, 176)", opacity: 0.3 },
+    };
+    // Regression line trace
+    var trace2 = {
+        x: xData,
+        y: regressionY,
+        showlegend: false,
+        mode: "lines",
+        line: { color: "rgb(31, 119, 180)", width: 2 },
+        type: "scattergl",
+    };
+    var data = [trace1, trace2];
+    var layout = {
+        dragmode: "lasso",
+        xaxis: {
+            title: capitalizeFirstLetter(xColumn),
+            color: "#212529",
+            titlefont: {
+                size: 14,
+                color: "#212529",
+            },
+        },
+        yaxis: {
+            title: capitalizeFirstLetter(yColumn),
+            color: "#212529",
+            titlefont: {
+                size: 14,
+                color: "#212529",
+            },
+        },
+        margin: { t: 0 },
+    };
+    const config = {
+        responsive: true,
+        displayModeBar: true,
+        displaylogo: false,
+        modeBarButtonsToRemove: [
+            "select2d",
+            "zoomIn2d",
+            "zoomOut2d",
+            "autoScale2d",
+            "resetScale2d",
+            "hoverClosestCartesian",
+            "hoverCompareCartesian",
+            "toggleSpikelines",
+            "toImage",
+            "zoomInMapbox",
+            "zoom3d",
+            "zoom2d",
+        ],
+        modeBarButtonsToAdd: ["lasso2d", "select2d", "pan2d"],
+    };
+    Plotly.newPlot("detail-view-2", data, layout, config);
+    const plotElement = document.getElementById("detail-view-2");
+    let observer = new ResizeObserver((entries) => {
+        Plotly.Plots.resize(plotElement);
+    });
+    observer.observe(plotElement);
 }

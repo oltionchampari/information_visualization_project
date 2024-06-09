@@ -128,7 +128,21 @@ function renderLegend(height, width, padding, color, svg) {
     .text(d3.max(color.domain()));
 }
 
-export function Heatmap(songFeatureData: any) {
+export function Heatmap(
+  songFeatureData: any[],
+  filter: string[],
+  onColumnSelectionChanged: (
+    columns: { x: string; y: string; value: number }[]
+  ) => void
+) {
+  // initialize filtermap from filter array
+  const filterMap = new Map();
+  filter.forEach((f) => {
+    filterMap.set(f, true);
+  });
+  const filteredData = filter.length
+    ? songFeatureData.filter((d) => !filterMap.get(d.song_id))
+    : songFeatureData;
   const corr = {};
   const ignoreColumns = [
     "song_id",
@@ -137,7 +151,7 @@ export function Heatmap(songFeatureData: any) {
     "key",
     "time_signature",
   ];
-  const arrData = songFeatureData.map((d) => {
+  filteredData.map((d) => {
     const keys = Object.keys(d).filter((key) => !ignoreColumns.includes(key));
     keys.forEach((key) => {
       if (!corr[key]) {
@@ -185,6 +199,11 @@ export function Heatmap(songFeatureData: any) {
     const resizeMetric = Math.min(widthLeft, heightLeft);
     const cellSize = resizeMetric / numColumns;
 
+    if(padding.left + numColumns * cellSize + padding.right < width){
+      padding.left = (width - numColumns * cellSize) / 2;
+      padding.right = padding.left;
+    }
+
     const svg = d3
       .select(".detail-view")
       .append("div")
@@ -199,7 +218,10 @@ export function Heatmap(songFeatureData: any) {
       .domain([-1, 1])
       .interpolator(d3.interpolateRdBu);
 
-    let selectedCells = new Map();
+    let selectedCells = new Map<
+      string,
+      { x: string; y: string; value: number }
+    >();
     console.log("Selected cells", d3.merge(corrValues));
     const cells = svg
       .selectAll("rect")
@@ -251,6 +273,8 @@ export function Heatmap(songFeatureData: any) {
             .filter((dd) => dd === d)
             .raise();
         });
+        console.log("Selected cells", Array.from(selectedCells.values()));
+        onColumnSelectionChanged(Array.from(selectedCells.values()));
       });
 
     const text = svg
@@ -304,7 +328,7 @@ export function Heatmap(songFeatureData: any) {
       .enter()
       .append("text")
       .text((d) => d)
-      .attr("x", 0)
+      .attr("x", padding.left - 60)
       .attr("y", (d, i) => i * cellSize + padding.top + cellSize / 2 + 5)
       .style("font-size", "12px")
       .style("text-anchor", "start")

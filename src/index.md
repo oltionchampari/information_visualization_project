@@ -115,7 +115,7 @@ import {ReactDom} from 'react-dom'
 import {buildLineup} from "./table.js"
 import {AppShell} from './views/AppShell.js'
 import {Heatmap} from './views/Heatmap.js'
-import {ScatterMatrix} from './views/ScatterPlot.js'
+import {Scatter} from './views/ScatterPlot.js'
 import jsesc from 'jsesc'
 
 ```
@@ -143,19 +143,32 @@ const featuresDataMap = acousticFeatures.reduce((acc,cur)=>{
   acc[cur.song_id] = cur
   return acc
 },{})
-const lyricsDataMap = lyrics.reduce((acc,cur)=>{
-  acc[cur.song_id] = cur
-  return acc
-},{})
 
 
 const fullData = songs.map((row)=>{
 let str = row.artists
 let match = str.match(/'([^']+)'/);
 let id = match ? match[1] : null;
-return {...row, ...artistsDataMap[id],...featuresDataMap[row.song_id]}
+return {...row,id:row.song_id, ...artistsDataMap[id],...featuresDataMap[row.song_id]}
 })
 ```
+```js
+// Shared props
+const selection = Mutable([]);
+const groupColumn= Mutable(null);
+const filter = Mutable([]);
+const columnSelection = Mutable([]);
+
+
+// handlers
+const onSelectionChanged = (sel)=>  selection.value=sel;
+const onFilterChanged = (newFilter)=>filter.value = newFilter;
+const onColumnSelectionChanged = (columns) =>columnSelection.value=columns;
+```
+
+
+
+
 
 ```js
 AppShell()
@@ -164,35 +177,21 @@ AppShell()
 
 
 ```js
-const props = Mutable([{name:"No selection"}]);
-const setSelection = (sel)=>{
-  props.value=sel
-  };
-```
-
-
-
-```js
 await visibility();
-const lineUp = buildLineup(fullData)
-lineUp.node.style.height = "400px";
-lineUp.on(LineUp.EVENT_SELECTION_CHANGED, function() {
-  const select= lineUp.data.view(lineUp.data.getSelection());
- setSelection(select);
-});
+const lineUp = buildLineup(fullData,onSelectionChanged,onFilterChanged)
 
 ```
 
 
 ```js
 await visibility()
-Heatmap(acousticFeatures)
+Heatmap(acousticFeatures, filter,onColumnSelectionChanged);
 
 ```
 
 ```js
 await visibility()
-ScatterMatrix(acousticFeatures)
+Scatter(acousticFeatures, filter,columnSelection);
 
 ```
 

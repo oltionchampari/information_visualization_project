@@ -4,11 +4,12 @@ import LineUp, {
   buildNumberColumn,
   buildCategoricalColumn,
   builder,
+  Ranking,
   buildColumn,
 } from "lineupjs";
 import * as d3 from "d3";
 
-export function buildLineup(data) {
+export function buildLineup(data,onSelectionChanged, onFilterChanged) {
   const dataBuilder = builder(data);
   dataBuilder.column(buildStringColumn("song_name").label("Song name"));
   dataBuilder.column(buildStringColumn("name").label("Artist name"));
@@ -29,5 +30,24 @@ export function buildLineup(data) {
   dataBuilder.ranking(ranking);
   dataBuilder.rowHeight(50).livePreviews(true).animated(true).sidePanel(false);
   const lineUp = dataBuilder.build(document.body.querySelector(".table-view"));
+  lineUp.node.style.height = "400px";
+  lineUp.on(LineUp.EVENT_SELECTION_CHANGED, function() {
+    const select= lineUp.data.view(lineUp.data.getSelection());
+   onSelectionChanged(select);
+  });
+
+  const provider = lineUp.data;
+  const rankingInstance = provider.getFirstRanking();
+  rankingInstance.on(Ranking.EVENT_FILTER_CHANGED, (event, filter, b) => {
+    console.log(event, filter);
+    const filteredOut = [];
+    for (let i = 0; i < provider.data.length; i++) {
+      const isRowFilteredOut = !rankingInstance.filter(provider.getRow(i));
+      if (isRowFilteredOut) {
+        filteredOut.push(provider.data[i].id);
+      }
+    }
+    onFilterChanged(filteredOut);
+  });
   return lineUp;
 }
