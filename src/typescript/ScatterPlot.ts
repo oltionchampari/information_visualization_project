@@ -98,7 +98,6 @@ export function ScatterPlot(songFeatureData: any, filter: string[]) {
 
 export function Scatter(songFeatureData: any, filter: string[],columnSelection:{x:string,y:string, value:number}[]) {
 
-
   if(columnSelection.length === 0){
     document.getElementById("detail-view-2").innerHTML = `<div class="h5 text-muted h-100 d-flex justify-content-center align-items-center"><span>Please select a cell in the heatmap to view the scatter plot.</span></div>`;
     return;

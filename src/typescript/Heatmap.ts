@@ -199,7 +199,7 @@ export function Heatmap(
     const resizeMetric = Math.min(widthLeft, heightLeft);
     const cellSize = resizeMetric / numColumns;
 
-    if(padding.left + numColumns * cellSize + padding.right < width){
+    if (padding.left + numColumns * cellSize + padding.right < width) {
       padding.left = (width - numColumns * cellSize) / 2;
       padding.right = padding.left;
     }
@@ -241,23 +241,27 @@ export function Heatmap(
         const id = getId(d);
         if (selectedCells.has(id)) {
           selectedCells.delete(id);
-          svg
-            .selectAll("text")
-            .filter((dd) => getId(dd) === id)
-            .attr("display", "none"); // Hide the text when cell is deselected
         } else {
           if (event.ctrlKey) {
             selectedCells.set(id, d);
           } else {
             selectedCells = new Map([[id, d]]);
           }
-          svg
-            .selectAll("text")
-            .filter((dd) => {
-              return getId(dd) === id;
-            })
-            .attr("display", null); // Hide the text when cell is deselected
         }
+        svg.select("g").selectAll("text").attr("visibility", "hidden"); // Hide the text when cell is deselected
+        svg
+          .select("g")
+          .selectAll("text")
+          .filter((dd) => {
+            console.log("DD", getId(dd), selectedCells, selectedCells.has(getId(dd)));
+            if (selectedCells.has(getId(dd))) {
+              console.log("DD", dd);
+            }
+
+            return selectedCells.has(getId(dd));
+          })
+          .attr("visibility", "visible"); // Show the text when cell is selected
+
         cells
           .attr("stroke", (d) =>
             selectedCells.has(getId(d)) ? "#ffcf76" : "none"
@@ -270,16 +274,18 @@ export function Heatmap(
             .raise();
           svg
             .selectAll("text")
-            .filter((dd) => dd === d)
+            .filter((dd) => selectedCells.has(getId(dd)))
+            .raise();
+            svg
+            .selectAll("g")
             .raise();
         });
-        console.log("Selected cells", Array.from(selectedCells.values()));
         onColumnSelectionChanged(Array.from(selectedCells.values()));
       });
 
     const text = svg
+      .append("g")
       .selectAll("text")
-      .classed("heatmap-text", true)
       .data<{ x: string; y: string; value: number }>(d3.merge(corrValues))
       .join("text")
       .attr(
@@ -299,7 +305,7 @@ export function Heatmap(
         // Return white text for dark backgrounds and black text for light backgrounds.
         return yiq >= 128 ? "#212529" : "white";
       })
-      .attr("display", "none")
+      .attr("visibility", "hidden")
       .style("font-size", "12px")
       .attr("text-anchor", "middle")
       .attr("dominant-baseline", "middle")
@@ -312,14 +318,14 @@ export function Heatmap(
         svg
           .selectAll("text")
           .filter((dd) => dd === d)
-          .attr("display", null); // Show the text
+          .attr("visibility", "visible"); // Show the text
       })
       .on("mouseout", function (event, d) {
         const getId = (c) => `${c?.x}-${c?.y}`;
         svg
           .selectAll("text")
           .filter((dd) => dd === d && !selectedCells.has(getId(dd)))
-          .attr("display", "none"); // Hide the text
+          .attr("visibility", "hidden"); // Hide the text
       });
 
     svg
