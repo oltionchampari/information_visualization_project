@@ -178,7 +178,7 @@ AppShell()
 
 ```js
 await visibility();
-const lineUp = buildLineup(fullData,onSelectionChanged,onFilterChanged)
+const lineUp = buildLineup(fullData,selection,onSelectionChanged,onFilterChanged)
 
 ```
 
@@ -191,7 +191,7 @@ Heatmap(acousticFeatures, filter,onColumnSelectionChanged);
 
 ```js
 await visibility()
-Scatter(acousticFeatures, filter,columnSelection);
+Scatter(fullData, filter,columnSelection,selection,onSelectionChanged);
 
 ```
 

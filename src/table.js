@@ -7,7 +7,9 @@ import LineUp, {
   Ranking,
   buildColumn,
 } from "lineupjs";
+import _ from "lodash";
 import * as d3 from "d3";
+
 const additionalColors = [
   "#6C3483",
   "#B03A2E",
@@ -36,8 +38,35 @@ const colors = d3
   .scaleOrdinal()
   .domain([0, 30])
   .range([...d3.schemeCategory10, ...myColors, ...additionalColors]);
+let lineUp = null;
+let previousSelection = null;
+export function buildLineup(
+  data,
+  selection,
+  onSelectionChanged,
+  onFilterChanged
+) {
+  const indexMap = data.reduce((acc, cur, i) => {
+    acc.set(cur, i);
+    return acc;
+  }, new Map());
 
-export function buildLineup(data, onSelectionChanged, onFilterChanged) {
+  if (selection.length && !_.isEqual(previousSelection, selection)) {
+    const selectedIndices = selection
+      ?.map((s) => indexMap.get(s))
+      .filter((i) => i != null);
+
+    if (selectedIndices) {
+      previousSelection = selection;
+      lineUp.data.setSelection(selectedIndices);
+    }
+    return;
+  }
+
+  if (lineUp) {
+    return;
+  }
+
   const genreCategories = data.map((d) => d.main_genre);
   const genreCounts = genreCategories.reduce((counts, genre) => {
     counts[genre] = (counts[genre] || 0) + 1;
@@ -59,7 +88,7 @@ export function buildLineup(data, onSelectionChanged, onFilterChanged) {
           : d.main_genre
         : "other",
   }));
-
+  console.log("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
   const dataBuilder = builder(data);
   dataBuilder.column(buildStringColumn("song_name").label("Song name"));
   dataBuilder.column(buildStringColumn("name").label("Artist name"));
@@ -81,10 +110,14 @@ export function buildLineup(data, onSelectionChanged, onFilterChanged) {
     .sortBy("popularity", "desc");
   dataBuilder.ranking(ranking);
   dataBuilder.rowHeight(50).livePreviews(true).animated(true).sidePanel(false);
-  const lineUp = dataBuilder.build(document.body.querySelector(".table-view"));
+  lineUp = dataBuilder.build(document.body.querySelector(".table-view"));
   lineUp.node.style.height = "400px";
   lineUp.on(LineUp.EVENT_SELECTION_CHANGED, function () {
+    if (_.isEqual(previousSelection, selection)) {
+      return;
+    }
     const select = lineUp.data.view(lineUp.data.getSelection());
+    previousSelection = select;
     onSelectionChanged(select);
   });
 
@@ -101,5 +134,4 @@ export function buildLineup(data, onSelectionChanged, onFilterChanged) {
     }
     onFilterChanged(filteredOut);
   });
-  return lineUp;
 }
