@@ -53,9 +53,7 @@ toc: false
   border-radius: 5px;
   background: white;
   font-size: 14px;
-  .le-th {
-    border-bottom: 1px solid #e8e8e8
-  }
+
 }
 
 .detail-view {
@@ -185,7 +183,7 @@ const lineUp = buildLineup(fullData,selection,onSelectionChanged,onFilterChanged
 
 ```js
 await visibility()
-Heatmap(acousticFeatures, filter,onColumnSelectionChanged);
+Heatmap(fullData, filter,onColumnSelectionChanged);
 
 ```
 

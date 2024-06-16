@@ -122,7 +122,7 @@ function updateSelection(svg, cells, getId, selectedCells, onColumnSelectionChan
     })
         .attr("visibility", "visible"); // Show the text when cell is selected
     cells
-        .attr("stroke", (d) => selectedCells.has(getId(d)) ? "#ffcf76" : "none")
+        .attr("stroke", (d) => (selectedCells.has(getId(d)) ? "#ffcf76" : "none"))
         .attr("stroke-width", (d) => (selectedCells.has(getId(d)) ? "3" : 0));
     selectedCells.forEach((d) => {
         svg
@@ -133,9 +133,7 @@ function updateSelection(svg, cells, getId, selectedCells, onColumnSelectionChan
             .selectAll("text")
             .filter((dd) => selectedCells.has(getId(dd)))
             .raise();
-        svg
-            .selectAll("g")
-            .raise();
+        svg.selectAll("g").raise();
     });
     onColumnSelectionChanged(Array.from(selectedCells.values()));
 }
@@ -150,14 +148,18 @@ export function Heatmap(songFeatureData, filter, onColumnSelectionChanged) {
         : songFeatureData;
     const corr = {};
     const ignoreColumns = [
-        "song_id",
-        "duration_ms",
-        "mode",
-        "key",
-        "time_signature",
+        "acousticness",
+        "danceability",
+        "energy",
+        "instrumentalness",
+        "loudness",
+        "speechiness",
+        "valence",
+        "tempo",
+        "popularity",
     ];
     filteredData.map((d) => {
-        const keys = Object.keys(d).filter((key) => !ignoreColumns.includes(key));
+        const keys = Object.keys(d).filter((key) => ignoreColumns.includes(key));
         keys.forEach((key) => {
             if (!corr[key]) {
                 corr[key] = [];

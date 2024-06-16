@@ -128,15 +128,16 @@ function renderLegend(height, width, padding, color, svg) {
     .text(d3.max(color.domain()));
 }
 
-let selectedCells = new Map<
-string,
-{ x: string; y: string; value: number }
->();
+let selectedCells = new Map<string, { x: string; y: string; value: number }>();
 
-
-
-function updateSelection(svg, cells, getId, selectedCells, onColumnSelectionChanged) {
-  svg.select("g").selectAll("text").attr("visibility", "hidden")
+function updateSelection(
+  svg,
+  cells,
+  getId,
+  selectedCells,
+  onColumnSelectionChanged
+) {
+  svg.select("g").selectAll("text").attr("visibility", "hidden");
   svg
     .select("g")
     .selectAll("text")
@@ -151,9 +152,7 @@ function updateSelection(svg, cells, getId, selectedCells, onColumnSelectionChan
     .attr("visibility", "visible"); // Show the text when cell is selected
 
   cells
-    .attr("stroke", (d) =>
-      selectedCells.has(getId(d)) ? "#ffcf76" : "none"
-    )
+    .attr("stroke", (d) => (selectedCells.has(getId(d)) ? "#ffcf76" : "none"))
     .attr("stroke-width", (d) => (selectedCells.has(getId(d)) ? "3" : 0));
   selectedCells.forEach((d) => {
     svg
@@ -164,13 +163,10 @@ function updateSelection(svg, cells, getId, selectedCells, onColumnSelectionChan
       .selectAll("text")
       .filter((dd) => selectedCells.has(getId(dd)))
       .raise();
-      svg
-      .selectAll("g")
-      .raise();
+    svg.selectAll("g").raise();
   });
   onColumnSelectionChanged(Array.from(selectedCells.values()));
 }
-
 
 export function Heatmap(
   songFeatureData: any[],
@@ -189,14 +185,18 @@ export function Heatmap(
     : songFeatureData;
   const corr = {};
   const ignoreColumns = [
-    "song_id",
-    "duration_ms",
-    "mode",
-    "key",
-    "time_signature",
+    "acousticness",
+    "danceability",
+    "energy",
+    "instrumentalness",
+    "loudness",
+    "speechiness",
+    "valence",
+    "tempo",
+    "popularity",
   ];
   filteredData.map((d) => {
-    const keys = Object.keys(d).filter((key) => !ignoreColumns.includes(key));
+    const keys = Object.keys(d).filter((key) => ignoreColumns.includes(key));
     keys.forEach((key) => {
       if (!corr[key]) {
         corr[key] = [];
@@ -218,7 +218,6 @@ export function Heatmap(
   });
 
   const numColumns = Object.keys(corr).length;
-
 
   const columnNames = Object.keys(corr).map((key) =>
     capitalizeFirstLetter(key)
@@ -261,7 +260,6 @@ export function Heatmap(
       .domain([-1, 1])
       .interpolator(d3.interpolateRdBu);
 
-
     const cells = svg
       .selectAll("rect")
       .data<{ x: string; y: string; value: number }>(d3.merge(corrValues))
@@ -287,7 +285,13 @@ export function Heatmap(
             selectedCells = new Map([[id, d]]);
           }
         }
-        updateSelection(svg, cells, getId, selectedCells, onColumnSelectionChanged);
+        updateSelection(
+          svg,
+          cells,
+          getId,
+          selectedCells,
+          onColumnSelectionChanged
+        );
       });
 
     const text = svg
@@ -334,7 +338,6 @@ export function Heatmap(
           .filter((dd) => dd === d && !selectedCells.has(getId(dd)))
           .attr("visibility", "hidden"); // Hide the text
       });
-
 
     svg
       .selectAll(".yLabel")
@@ -391,8 +394,8 @@ export function Heatmap(
           self.text(text);
         }
       });
-      const getId = (c) => `${c?.x}-${c?.y}`;
-      updateSelection(svg, cells, getId, selectedCells, ()=>null);
+    const getId = (c) => `${c?.x}-${c?.y}`;
+    updateSelection(svg, cells, getId, selectedCells, () => null);
     renderLegend(height, width, padding, color, svg);
   };
 

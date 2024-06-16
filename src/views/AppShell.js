@@ -19,7 +19,6 @@ export function AppShell() {
   </div>
 </div>
     `;
-    console.log("Split", root.querySelector(".table-view"), root.querySelector(".detail-view"));
     Split.default([
         root.querySelector(".table-view"),
         root.querySelector(".bottom-view"),
