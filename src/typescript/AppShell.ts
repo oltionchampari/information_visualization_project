@@ -34,7 +34,6 @@ export function AppShell() {
       cursor: "row-resize",
 
       onDragEnd: function (sizes: number[]) {
-        console.log("Sizes", sizes);
       },
     }
   );
@@ -53,7 +52,6 @@ export function AppShell() {
       cursor: "col-resize",
 
       onDragEnd: function (sizes: number[]) {
-        console.log("Sizes", sizes);
       },
     }
   );

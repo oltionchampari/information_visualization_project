@@ -30,7 +30,6 @@ export function AppShell() {
         direction: "vertical",
         cursor: "row-resize",
         onDragEnd: function (sizes) {
-            console.log("Sizes", sizes);
         },
     });
     Split.default([
@@ -44,7 +43,6 @@ export function AppShell() {
         direction: "horizontal",
         cursor: "col-resize",
         onDragEnd: function (sizes) {
-            console.log("Sizes", sizes);
         },
     });
     return root;

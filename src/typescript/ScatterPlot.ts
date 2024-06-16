@@ -43,11 +43,6 @@ export async function Scatter(
 
   // Generate y values for the regression line
   var regressionY = xData.map(regressionLine);
-  console.log(
-    "Regression",
-    names,
-    selection.map((s) => ids.indexOf(s.song_id))
-  );
   var trace1 = {
     x: xData,
     y: yData,

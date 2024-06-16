@@ -9,6 +9,7 @@ import LineUp, {
 } from "lineupjs";
 import _ from "lodash";
 import * as d3 from "d3";
+import { PreviewRenderer } from "./views/renderers.js";
 
 const additionalColors = [
   "#6C3483",
@@ -46,6 +47,7 @@ export function buildLineup(
   onSelectionChanged,
   onFilterChanged
 ) {
+
   const indexMap = data.reduce((acc, cur, i) => {
     acc.set(cur, i);
     return acc;
@@ -88,10 +90,24 @@ export function buildLineup(
           : d.main_genre
         : "other",
   }));
-  console.log("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
   const dataBuilder = builder(data);
   dataBuilder.column(buildStringColumn("song_name").label("Song name"));
+
   dataBuilder.column(buildStringColumn("name").label("Artist name"));
+  dataBuilder.column(
+    buildStringColumn("image_url")
+      .pattern("${value}")
+      .label("Image")
+      .renderer("image")
+      .width(70)
+  );
+  dataBuilder.column(
+    buildStringColumn("song_id")
+      .label("Preview")
+      .renderer("preview", "preview", "preview")
+      .width(50)
+  );
+
   dataBuilder.column(
     buildCategoricalColumn("main_genre").label("Genre").categories(sortedGenres)
   );
@@ -104,18 +120,29 @@ export function buildLineup(
   dataBuilder.column(buildNumberColumn("valence").width(120));
   dataBuilder.column(buildNumberColumn("tempo").width(120));
   dataBuilder.column(buildNumberColumn("popularity").width(120));
+
   const ranking = buildRanking()
     .supportTypes()
     .allColumns()
+
     .sortBy("popularity", "desc");
-  dataBuilder.ranking(ranking);
-  dataBuilder.rowHeight(50).livePreviews(true).animated(true).sidePanel(false);
+  dataBuilder
+    .ranking(ranking)
+    .registerRenderer("preview", new PreviewRenderer())
+    .rowHeight(50)
+    .scheduledTaskExecutor(true)
+    .livePreviews({})
+    .animated(true)
+    .sidePanel(false);
+
   lineUp = dataBuilder.build(document.body.querySelector(".table-view"));
   lineUp.node.style.height = "400px";
+  let clicked = false;
   lineUp.on(LineUp.EVENT_SELECTION_CHANGED, function () {
     if (_.isEqual(previousSelection, selection)) {
       return;
     }
+
     const select = lineUp.data.view(lineUp.data.getSelection());
     previousSelection = select;
     onSelectionChanged(select);
@@ -124,7 +151,6 @@ export function buildLineup(
   const provider = lineUp.data;
   const rankingInstance = provider.getFirstRanking();
   rankingInstance.on(Ranking.EVENT_FILTER_CHANGED, (event, filter, b) => {
-    console.log(event, filter);
     const filteredOut = [];
     for (let i = 0; i < provider.data.length; i++) {
       const isRowFilteredOut = !rankingInstance.filter(provider.getRow(i));

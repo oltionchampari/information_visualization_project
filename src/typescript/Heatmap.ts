@@ -98,7 +98,6 @@ function renderLegend(height, width, padding, color, svg) {
     .join("stop")
     .attr("offset", (d) => d.offset)
     .attr("stop-color", (d) => d.color);
-  console.log("Legend", legendWidth, legendHeight);
   // Create a rectangle and fill it with the gradient
   legend
     .append("rect")
@@ -142,10 +141,6 @@ function updateSelection(
     .select("g")
     .selectAll("text")
     .filter((dd) => {
-      console.log("DD", getId(dd), selectedCells, selectedCells.has(getId(dd)));
-      if (selectedCells.has(getId(dd))) {
-        console.log("DD", dd);
-      }
 
       return selectedCells.has(getId(dd));
     })
